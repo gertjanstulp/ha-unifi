@@ -97,11 +97,6 @@ class UnifiSensor(Entity):
         """Return the state of the sensor."""
         return self._state
 
-    # @property
-    # def device_state_attributes(self):
-    #     """Return the state attributes."""
-    #     return self._attributes    
-
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
