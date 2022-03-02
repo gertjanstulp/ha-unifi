@@ -2,8 +2,8 @@
   "domain": "my_unifi",
   "name": "My UniFi",
   "version": "0.1.5",
-  "documentation": "https://github.com/RubenDijk/homeassistant/tree/master/custom_components/my_unifi",
-  "issue_tracker": "https://github.com/RubenDijk/homeassistant/tree/master/custom_components/my_unifi",
+  "documentation": "https://github.com/gertjanstulp/ha-unify",
+  "issue_tracker": "https://github.com/gertjanstulp/ha-unify",
   "dependencies": [],
   "config_flow": true,
   "codeowners": [
