@@ -121,6 +121,7 @@ class UnifiSensorData(object):
 
     """
     _login_data = {}
+    _login_headers = {}
     _current_status_code = None
 
     def __init__(self, hass, username, password, site, baseurl, verify_ssl):
@@ -136,6 +137,7 @@ class UnifiSensorData(object):
         self._hass = hass
         self._login_data['username'] = username
         self._login_data['password'] = password
+        self._login_headers['Content-Type'] = "application/json"
         self._site = site
         self._verify_ssl = verify_ssl
         self._baseurl = baseurl
@@ -143,6 +145,7 @@ class UnifiSensorData(object):
         self._ap_list = {}
         self.total = 0
         self.attrs = {}
+        self._second_attempt = False
 
     def __enter__(self):
         """
@@ -167,8 +170,12 @@ class UnifiSensorData(object):
 
         :return: None
         """
-        self._current_status_code = self._session.post("{}/api/login".format(self._baseurl), data=json.dumps(self._login_data), verify=self._verify_ssl).status_code
+        result = self._session.post("{}/api/auth/login".format(self._baseurl), data=json.dumps(self._login_data), verify=self._verify_ssl, headers=self._login_headers)
+        self._current_status_code = result.status_code 
 
+        if self._current_status_code == 200:
+            self._session.headers.update({"X-CSRF-Token": result.headers["X-CSRF-Token"]})
+            
         if self._current_status_code == 400:
             _LOGGER.error("Failed to log in to api with provided credentials")
 
@@ -178,7 +185,8 @@ class UnifiSensorData(object):
 
         :return: None
         """
-        self._session.get("{}/logout".format(self._baseurl))
+
+        self._session.post("{}/api/auth/logout".format(self._baseurl))
         self._session.close()
 
     def list_clients(self) -> list:
@@ -187,8 +195,8 @@ class UnifiSensorData(object):
 
         :return: A list of clients on the format of a dict
         """
-
-        r = self._session.get("{}/api/s/{}/stat/sta".format(self._baseurl, self._site, verify=self._verify_ssl), data="json={}")
+        
+        r = self._session.get("{}/proxy/network/api/s/{}/stat/sta".format(self._baseurl, self._site), verify=self._verify_ssl, data="json={}")
         self._current_status_code = r.status_code
         
         if self._current_status_code == 401:
@@ -207,7 +215,7 @@ class UnifiSensorData(object):
         :return: A list of devices on the format of a dict
         """
 
-        r = self._session.get("{}/api/s/{}/stat/device/{}".format(self._baseurl, self._site, mac, selfverify=self._verify_ssl), data="json={}")
+        r = self._session.get("{}/proxy/network/api/s/{}/stat/device/{}".format(self._baseurl, self._site, mac), verify=self._verify_ssl, data="json={}")
         self._current_status_code = r.status_code
         
         if self._current_status_code == 401:
@@ -229,45 +237,46 @@ class UnifiSensorData(object):
 
     def update(self):
         self.login()
-        self.total = 0
-        self.attrs = {}
-        devices_per_essid = {}
-        devices_per_ap = {}
-        devices_per_ap_name = {}
-        devices_wired = 0
+        try:
+            self.total = 0
+            self.attrs = {}
+            devices_per_essid = {}
+            devices_per_ap = {}
+            devices_per_ap_name = {}
+            devices_wired = 0
 
-        device_list = (self.list_clients())
-        for device in device_list:
-          self.total += 1
-          try:
-            if device['is_wired']:
-                devices_wired += 1
-            else:    
-                if device['essid'] in devices_per_essid.keys():
-                  devices_per_essid[device['essid']] += 1   
+            device_list = (self.list_clients())
+            for device in device_list:
+                self.total += 1
+                try:
+                    if device['is_wired']:
+                        devices_wired += 1
+                    else:    
+                        if device['essid'] in devices_per_essid.keys():
+                            devices_per_essid[device['essid']] += 1   
+                        else:
+                            devices_per_essid[device['essid']] = 1   
+                        if device['ap_mac'] in devices_per_ap.keys():
+                            devices_per_ap[device['ap_mac']] += 1   
+                        else:
+                            devices_per_ap[device['ap_mac']] = 1   
+                except:
+                    _LOGGER.error("error processing device %s", device["mac"])
+
+            for ap in devices_per_ap.keys():
+                if ap in self._ap_list.keys():    
+                    devices_per_ap_name[self._ap_list[ap]] = devices_per_ap[ap]
                 else:
-                  devices_per_essid[device['essid']] = 1   
-                if device['ap_mac'] in devices_per_ap.keys():
-                  devices_per_ap[device['ap_mac']] += 1   
-                else:
-                  devices_per_ap[device['ap_mac']] = 1   
-          except:
-            _LOGGER.error("error processing device %s", device["mac"])
+                    self.update_ap_list(ap)
+                    devices_per_ap_name[self._ap_list[ap]] = devices_per_ap[ap]   
 
-        for ap in devices_per_ap.keys():
-            if ap in self._ap_list.keys():    
-               devices_per_ap_name[self._ap_list[ap]] = devices_per_ap[ap]
-            else:
-               self.update_ap_list(ap)
-               devices_per_ap_name[self._ap_list[ap]] = devices_per_ap[ap]   
-
-        #update attrs
-        for key in devices_per_essid.keys():
-          self.attrs[key] = devices_per_essid[key]
-        for key in devices_per_ap_name.keys():
-          self.attrs[key] = devices_per_ap_name[key]
-        if devices_wired > 0:
-          self.attrs['wired'] =devices_wired 
-
-        self.logout()      
+            #update attrs
+            for key in devices_per_essid.keys():
+                self.attrs[key] = devices_per_essid[key]
+            for key in devices_per_ap_name.keys():
+                self.attrs[key] = devices_per_ap_name[key]
+            if devices_wired > 0:
+                self.attrs['wired'] =devices_wired 
+        finally:
+            self.logout()      
 
