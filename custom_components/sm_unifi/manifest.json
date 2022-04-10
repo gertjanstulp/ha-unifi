@@ -1,6 +1,6 @@
 {
-  "domain": "my_unifi",
-  "name": "My UniFi",
+  "domain": "sm_unifi",
+  "name": "SM UniFi",
   "version": "0.1.5",
   "documentation": "https://github.com/gertjanstulp/ha-unify",
   "issue_tracker": "https://github.com/gertjanstulp/ha-unify",
