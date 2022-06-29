@@ -1,0 +1,16 @@
+{
+  "codeowners": [
+      "@gertjanstulp"
+  ],
+  "config_flow": true,
+  "dependencies": [
+  ],
+
+  "documentation": "https://github.com/gertjanstulp/ha-unifi",
+  "domain": "unifi",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/gertjanstulp/ha-unifi/issues",
+  "name": "Unifi",
+  "requirements": [], 
+  "version": "0.0.0"
+}
