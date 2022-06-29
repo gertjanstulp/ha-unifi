@@ -1,2 +1,2 @@
-# Unifi
-Additional unifi entities
+# Unifi Extensions
+Unifi extensions
