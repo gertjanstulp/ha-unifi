@@ -1,8 +1,8 @@
 {
-  "name": "Unifi",
+  "name": "Unifi Ext",
   "zip_release": true,
   "hide_default_branch": true,
   "homeassistant": "2022.2.0",
   "render_readme": true,
-  "filename": "unifi.zip"
+  "filename": "unifi_ext.zip"
 }
