@@ -23,8 +23,6 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     CONF_NAME, CONF_USERNAME, CONF_PASSWORD, CONF_REGION,
     CONF_URL, CONF_VERIFY_SSL, STATE_UNKNOWN, PRECISION_WHOLE)
-from homeassistant.exceptions import TemplateError
-from homeassistant.helpers import template
 
 
 REQUIREMENTS = []
@@ -196,7 +194,7 @@ class UnifiSensorData(object):
         :return: A list of clients on the format of a dict
         """
         
-        r = self._session.get("{}/proxy/network/api/s/{}/stat/sta".format(self._baseurl, self._site), verify=self._verify_ssl, data="json={}")
+        r = self._session.get(f"{self._baseurl}/proxy/network/api/s/{self._site}/stat/sta", verify=self._verify_ssl)
         self._current_status_code = r.status_code
         
         if self._current_status_code == 401:
@@ -215,7 +213,7 @@ class UnifiSensorData(object):
         :return: A list of devices on the format of a dict
         """
 
-        r = self._session.get("{}/proxy/network/api/s/{}/stat/device/{}".format(self._baseurl, self._site, mac), verify=self._verify_ssl, data="json={}")
+        r = self._session.get(f"{self._baseurl}/proxy/network/api/s/{self._site}/stat/device/{mac}", verify=self._verify_ssl)
         self._current_status_code = r.status_code
         
         if self._current_status_code == 401:
