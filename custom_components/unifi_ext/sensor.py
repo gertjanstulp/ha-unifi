@@ -33,7 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = 'sensor'
 ENTITY_ID_FORMAT = DOMAIN + '.{}'
 
-DEFAULT_NAME = 'Unifi'
+DEFAULT_NAME = 'UnifiExt'
 DEFAULT_SITE  = 'default'
 DEFAULT_VERIFYSSL = False
 

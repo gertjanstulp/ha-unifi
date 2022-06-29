@@ -3,14 +3,12 @@
       "@gertjanstulp"
   ],
   "config_flow": true,
-  "dependencies": [
-  ],
-
+  "dependencies": [],
   "documentation": "https://github.com/gertjanstulp/ha-unifi",
-  "domain": "unifi",
+  "domain": "unifi_ext",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/gertjanstulp/ha-unifi/issues",
-  "name": "Unifi",
-  "requirements": [], 
+  "name": "Unifi Extensions",
+  "requirements": [],
   "version": "0.0.0"
 }
