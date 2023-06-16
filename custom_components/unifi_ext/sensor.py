@@ -24,6 +24,8 @@ from homeassistant.const import (
     CONF_NAME, CONF_USERNAME, CONF_PASSWORD, CONF_REGION,
     CONF_URL, CONF_VERIFY_SSL, STATE_UNKNOWN, PRECISION_WHOLE)
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 REQUIREMENTS = []
 
